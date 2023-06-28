@@ -2,7 +2,7 @@
 epoch: 300
 batch: 128
 embed: 64
-if_resume: True   # use checkPoint
+if_resume: False   # use checkPoint
 loss_weight: 100
 is_scheduler: False
 lr: 1e-3
