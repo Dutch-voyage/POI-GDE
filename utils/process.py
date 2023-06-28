@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 from tqdm import tqdm
 
 
-def remap(df: pd.DataFrame, n_user, n_poi):  # 是自定义的方法。。
+def remap(df: pd.DataFrame, n_user, n_poi):  # 编号
     uid_dict = dict(zip(pd.unique(df['uid']), range(n_user)))
     poi_dict = dict(zip(pd.unique(df['poi']), range(n_poi)))
     cid_dict = dict(zip(pd.unique(df['cid']), range(n_cid)))
@@ -29,13 +29,22 @@ def get_cid_list(df: pd.DataFrame, n_cid, n_loc):
 if __name__ == "__main__":
     device = torch.device(f'cuda:0')  # 利用GPU做批运算
     random.seed(3407)
+    dataSet = "NYC"
 
-    source_pth = '../../../root/autodl-tmp/foursquares/NYC_89385_last_100_delUserAndPOILess_10.txt'
+    if dataSet == "SG":
+        source_pth = 'data/SG_189807_last_100_delUserAndPOILess_10.txt'
+        dist_pth = 'data/ode_sg/'
+    elif dataSet == "NYC":
+        source_pth = 'data/NYC_89385_last_100_delUserAndPOILess_10.txt'
+        dist_pth = 'data/ode_nyc/'
+    elif dataSet == "TKY":
+        source_pth = 'data/TKY_209012_last_100_delUserAndPOILess_10.txt'
+        dist_pth = 'data/ode_tky/'
     # source_pth = '../../../root/autodl-tmp/foursquares/TKY_209012_last_100_delUserAndPOILess_10.txt'
     # source_pth = '../../../root/autodl-tmp/foursquares/SG_189807_last_100_delUserAndPOILess_10.txt'
 
     # dist_pth = '../data/case_study/nyc'
-    dist_pth = '../data/ode_nyc/'
+
     # dist_pth = '../data/ode_tky/'
     # dist_pth = '../data/ode_sg/'
 
@@ -68,20 +77,12 @@ if __name__ == "__main__":
     prev = []
     latter = []
 
-    freq_num = 6
-
     def timestamp_datatime(value):
         value = Time.localtime(value)
-        dt = [value.tm_year, value.tm_yday,
-              value.tm_mon, value.tm_mday,
-              value.tm_hour + value.tm_min / 60 + value.tm_sec / 3600,
-              value.tm_hour % 12 + value.tm_min / 60 + value.tm_sec / 3600]
+        dt = [value.tm_year, value.tm_yday, value.tm_mday, value.tm_wday, value.tm_hour + value.tm_min / 60 + value.tm_sec / 3600]
         return dt
 
-    # dt  [freq_num, 1]
-    infs = [1e7] * freq_num
-    sups = [0] * freq_num
-
+    Ysup, Yinf, Msup, Minf, Wsup, Winf, Dsup, Dinf, Hsup, Hinf = 1e7, 0, 1e7, 0, 1e7, 0, 1e7, 0, 1e7, 0
     Latsup, Latinf, Lonsup, Loninf = 1e7, -1e7, 1e7, -1e7
 
     n_loc = n_poi + n_user
@@ -97,18 +98,22 @@ if __name__ == "__main__":
         timestamps = []
 
         for time in visitTime:
-
             dt = timestamp_datatime(time)
             timestamps.append(dt)
-            T = dt
-            for i in range(freq_num):
-                sups[i], infs[i] = max(sups[i], T[i]), min(infs[i], T[i])
+            Y, M, D, W, H = dt
+            Ysup, Yinf = min(Ysup, Y), max(Yinf, Y)
+            Msup, Minf = min(Msup, M), max(Minf, M)
+            Wsup, Winf = min(Wsup, W), max(Winf, W)
+            Dsup, Dinf = min(Dsup, D), max(Dinf, D)
+            Hsup, Hinf = min(Hsup, H), max(Hinf, H)
 
         # temp_geo_traj_dist = np.zeros((len(item)-1, 3))  # [u,v,delta_s]
         # ===求用户中心===
         pos_list = item['poi'].tolist()  # 访问序列[trajLen]
         category_list = item['cid'].tolist()  # 访问poi的类别序列
         category_names = item['category'].tolist()  # 访问poi的类别序列
+
+
 
         test_val_set_i = []
         train_set_i = []
@@ -178,8 +183,7 @@ if __name__ == "__main__":
     print(len(loc_dict))
 
     print(f'Train: {len(train_set)}, Val: {len(val_set)}, Test: {len(test_set)}')
-    print(sups)
-    print(infs)
+    print(Ysup, Yinf, Msup, Minf, Wsup, Winf, Dsup, Dinf, Hsup, Hinf)
     print(Latsup, Latinf, Lonsup, Loninf)
 
     with open(dist_pth + 'processed/param.pkl', 'wb') as f:  #
@@ -187,8 +191,16 @@ if __name__ == "__main__":
         pkl.dump(Latinf, f, pkl.HIGHEST_PROTOCOL)
         pkl.dump(Lonsup, f, pkl.HIGHEST_PROTOCOL)
         pkl.dump(Loninf, f, pkl.HIGHEST_PROTOCOL)
-        pkl.dump(sups, f, pkl.HIGHEST_PROTOCOL)
-        pkl.dump(infs, f, pkl.HIGHEST_PROTOCOL)
+        pkl.dump(Ysup, f, pkl.HIGHEST_PROTOCOL)
+        pkl.dump(Yinf, f, pkl.HIGHEST_PROTOCOL)
+        pkl.dump(Msup, f, pkl.HIGHEST_PROTOCOL)
+        pkl.dump(Minf, f, pkl.HIGHEST_PROTOCOL)
+        pkl.dump(Wsup, f, pkl.HIGHEST_PROTOCOL)
+        pkl.dump(Winf, f, pkl.HIGHEST_PROTOCOL)
+        pkl.dump(Dsup, f, pkl.HIGHEST_PROTOCOL)
+        pkl.dump(Dinf, f, pkl.HIGHEST_PROTOCOL)
+        pkl.dump(Hsup, f, pkl.HIGHEST_PROTOCOL)
+        pkl.dump(Hinf, f, pkl.HIGHEST_PROTOCOL)
         pkl.dump(loc_dict, f, pkl.HIGHEST_PROTOCOL)
         pkl.dump(n_user, f, pkl.HIGHEST_PROTOCOL)
         pkl.dump(n_poi, f, pkl.HIGHEST_PROTOCOL)

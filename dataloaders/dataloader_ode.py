@@ -2,7 +2,7 @@ import pickle
 import torch
 import tqdm
 from tqdm import tqdm
-from torch_geometric.data import InMemoryDataset, Data  # Data类？
+from torch_geometric.data import InMemoryDataset, Data
 from torch_geometric.utils import k_hop_subgraph, to_undirected, subgraph
 
 
@@ -98,7 +98,7 @@ class MultiSessionsGraph(InMemoryDataset):
                                   y=y,
                                   ))  # 还记下了样本的经纬度
 
-        data, slices = self.collate(data_list)  # 这个方法有什么用？
+        data, slices = self.collate(data_list)
         # 会生成3个pt文件
         torch.save((data, slices), self.processed_paths[0])  # 是存数据的方法，注释掉后不会生成pt文件
 

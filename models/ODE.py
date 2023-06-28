@@ -246,11 +246,12 @@ class ODEAdjoint(torch.autograd.Function):
                adj_t0.view(bs, *t_shape), adj_t1.view(bs, *t_shape), adj_p, None
 
 class NeuralODE(nn.Module):
-    def __init__(self, func, n_poi):
+    def __init__(self, func, n_poi, max_step):
         super(NeuralODE, self).__init__()
         assert isinstance(func, ODEF)
         self.func = func
         self.n_poi = n_poi
+        self.max_step = max_step
 
     def forward(self, data, fuse_embed, return_whole_sequence=False):
         A = data.input_freq.unsqueeze(1).repeat(1, 3, 1, 1)
@@ -264,14 +265,21 @@ class NeuralODE(nn.Module):
 
         t0 = data.cur_time
         t1 = data.tar_time
-        iter_num = self.func.time_embedding.freq_num
 
-        period = [torch.ceil(self.func.time_embedding.sups[i] - self.func.time_embedding.infs[i]).int() for i in range(iter_num)]
+        period = [100,
+                  self.func.time_embedding.Minf - self.func.time_embedding.Msup,
+                  self.func.time_embedding.Winf - self.func.time_embedding.Wsup,
+                  self.func.time_embedding.Dinf - self.func.time_embedding.Dsup,
+                  self.func.time_embedding.Hinf - self.func.time_embedding.Hsup]
 
         # max_step = np.trunc(np.log([365*24, 30*24, 7*24, 24, 1])).astype(np.int64) + 2
 
         # max_step = [0, 3, 3, 3, 3]
-        max_step = [4] * iter_num
+        max_step = self.max_step
+        if max_step == 'random':
+            tmp_step = np.random.randint(2,7)
+            max_step = [0]+[tmp_step for _ in range(4)]  # 重复4
+        # print(max_step)
         # for i in range(1, 5):
         #     max_step[i] = np.random.randint(2, 7)
 
@@ -283,13 +291,12 @@ class NeuralODE(nn.Module):
 
         T = []
         t0_ = t0
-        for j in range(0, iter_num):
+        for j in range(0, 5):
             inter = [linspace(t0_[i, j], t1[i, j], j) for i in range(bs)]
             inter = torch.cat(inter, dim=0)
             for k in range(max_step[j]):
                 t0_[:, j] = inter[:, k]
                 T.append(t0_.unsqueeze(0))
-
         T = torch.cat(T, dim=0)
         timestamp_T = self.func.time_embedding(T)
         z = torch.cat([A, x, u], dim=-1)

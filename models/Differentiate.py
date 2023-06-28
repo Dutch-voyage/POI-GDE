@@ -13,24 +13,23 @@ class Differentiate(nn.Module):
         self.K = nn.Linear(embed, embed)
 
     def forward(self, A0, x0, u0, t0, t1):
+        Q = self.Q(x0[:, :, -1, :])
+        V = self.V(x0)
         T0 = self.T(t0).unsqueeze(1)
         T1 = self.T(t1).unsqueeze(1)
+        K = self.K(u0)
+        QT = Q * T0
+        KT = K * T1
+        QTK = QT * K
+        VT = V * T1.unsqueeze(1)
+        # VTK = VT * K.unsqueeze(-2)
 
-        q = x0[:, :, -1, :] * T0
-        v = x0 * T1.unsqueeze(-2)
-        k = u0 * T1
-
-        Q = self.Q(q)
-        V = self.V(v)
-        K = self.K(k)
-        QK = Q * K
-
-        QKV= torch.einsum("bce, bcle -> bcl", QK, V)
-        QKV = F.softmax(QKV, dim=-1)
+        QTKVT = torch.einsum("bce, bcle -> bcl", QTK, VT)
+        QTKVT = F.softmax(QTKVT, dim=-1)
 
         A1 = torch.zeros_like(A0)
         A1[:, :, :-1, :] = A0[:, :, 1:, :] - A0[:, :, 0, :].unsqueeze(2)
-        A1[:, :, -1, :] = A1[:, :, -2, :] + QKV
+        A1[:, :, -1, :] = A1[:, :, -2, :] + QTKVT
 
 
         w = (T0 @ T1.transpose(-1, -2)).squeeze(-1) / \

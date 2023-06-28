@@ -31,8 +31,8 @@ class Differentiate(nn.Module):
         t1 = t1.unsqueeze(1)
         # T_weight = self.dropout(self.T_weight)
 
-        T0 = (t0.unsqueeze(-2) @ self.T_weight.unsqueeze(0)).squeeze(-2) + self.T_bias.unsqueeze(0)
-        T1 = (t1.unsqueeze(-2) @ self.T_weight.unsqueeze(0)).squeeze(-2) + self.T_bias.unsqueeze(0)
+        T0 = (t0.unsqueeze(-2) @ self.T_weight.unsqueeze(0)).squeeze(-2)  # + self.T_bias.unsqueeze(0)
+        T1 = (t1.unsqueeze(-2) @ self.T_weight.unsqueeze(0)).squeeze(-2)  # + self.T_bias.unsqueeze(0)
         T0 = T0.unsqueeze(-2)
         T1 = T1.unsqueeze(-2)
 
@@ -60,7 +60,7 @@ class Differentiate(nn.Module):
         w = (T0 @ T1.transpose(-1, -2)).squeeze(-1) / \
             (((T0 @ T0.transpose(-1, -2)).squeeze(-1) + (T1 @ T1.transpose(-1, -2)).squeeze(-1)) ** 0.5)
 
-        # w = w * 0.1
+       # w = w * 0.1
 
         x1 = (A1 @ x0)
 

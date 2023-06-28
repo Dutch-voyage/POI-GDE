@@ -1,20 +1,26 @@
-if_resume: True
+# python ode_main.py hydra.job.chdir=False
+epoch: 300
+batch: 128
+embed: 64
+if_resume: True   # use checkPoint
+loss_weight: 100
+is_scheduler: False
+lr: 1e-3
+max_step: [0,4,4,4,4]
+
 if_pretrain_fuse: False
 if_pretrain_truth: False
-ckpt_path: "ckpts/best_new_model.pth"
+ckpt_path:  "ckpts/ckpt.pth"        #"ckpts/best_new_model.pth"
 pretrain_fuse_path: "./ckpts/pretrain_fuse.pth"
 pretrain_truth_path: "./ckpts/pretrain_truth.pth"
-epoch: 500
 seed: 3407
-batch: 128
 data: ode_nyc
+info_step: 1
 gpu: 0
-freq_num: 6
 patience: 15
-embed: 64
 window_size: 32
 weight_decay: 0
-lr: 1e-3
+
 multiplier: 2.5
 T_max: 50
 eta_min: 1e-4
