@@ -14,7 +14,7 @@ import numpy as np
 from models.EmbeddingLayer import EmbeddingLayer
 from models.MultiFuser import MultiFuser
 from models.GeoEmbedding import GeoEmbedding
-from models.TimeEmbedding_new import TimeEmbedding
+from models.TimeEmbedding import TimeEmbedding
 from models.Predictor import Predictor
 
 from models.ODE import NeuralODE, GraphODEF
