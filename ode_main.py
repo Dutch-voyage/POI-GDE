@@ -6,7 +6,6 @@ import traceback
 import hydra
 from omegaconf import OmegaConf
 from trainers.ODETrainer import ODETrainer
-from trainers.TestTrainer import TestTrainer
 
 @hydra.main(config_path='configs', config_name='ode.yaml', version_base='1.2')
 def main(config: OmegaConf):
@@ -17,7 +16,6 @@ def main(config: OmegaConf):
         os.makedirs(checkpoints_dir, exist_ok=True)
         kwargs = OmegaConf.to_container(config, resolve=True)
         trainer = ODETrainer(**kwargs)
-        # trainesr = TestTrainer(**kwargs)
         trainer.fit()
     except KeyboardInterrupt:
         logging.warning('Interrupted by user')

@@ -29,7 +29,6 @@ class Differentiate(nn.Module):
     def forward(self, A0, x0, u0, t0, t1):
         t0 = t0.unsqueeze(1)
         t1 = t1.unsqueeze(1)
-        # T_weight = self.dropout(self.T_weight)
 
         T0 = (t0.unsqueeze(-2) @ self.T_weight.unsqueeze(0)).squeeze(-2)  # + self.T_bias.unsqueeze(0)
         T1 = (t1.unsqueeze(-2) @ self.T_weight.unsqueeze(0)).squeeze(-2)  # + self.T_bias.unsqueeze(0)
@@ -39,10 +38,6 @@ class Differentiate(nn.Module):
         Q_weight = self.Q_weight * T0
         V_weight = self.V_weight * T1
         K_weight = self.K_weight * T1
-
-        # Q_weight = self.dropout(Q_weight)
-        # V_weight = self.dropout(V_weight)
-        # K_weight = self.dropout(K_weight)
 
         Q = (x0[:, :, -1, :].unsqueeze(-2) @ Q_weight).squeeze(-2) + self.Q_bias
         V = (x0.unsqueeze(-2) @ V_weight.unsqueeze(-3)).squeeze(-2) + self.V_bias.unsqueeze(-2)
@@ -56,19 +51,13 @@ class Differentiate(nn.Module):
         A1[:, :, :-1, :] = A0[:, :, 1:, :] - A0[:, :, 0, :].unsqueeze(2)
         A1[:, :, -1, :] = A1[:, :, -2, :] + QKV
 
-
         w = (T0 @ T1.transpose(-1, -2)).squeeze(-1) / \
             (((T0 @ T0.transpose(-1, -2)).squeeze(-1) + (T1 @ T1.transpose(-1, -2)).squeeze(-1)) ** 0.5)
-
-       # w = w * 0.1
 
         x1 = (A1 @ x0)
 
         x1 = torch.diff(x1, dim=-2, prepend=torch.zeros_like(x1[:, :, 0, :]).unsqueeze(2))
 
-        # attn_score = torch.einsum("bce, bcle -> bcl", KT, VT)
-        # attn_score = torch.softmax(attn_score, dim=-1)
-        # u1 = (attn_score.unsqueeze(-2) @ x0).squeeze(-2)
         u1 = u0 * (1 - w) + x1.mean(-2) * w
 
         return A1 - A0, x1 - x0, u1 - u0

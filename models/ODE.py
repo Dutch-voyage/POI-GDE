@@ -13,12 +13,6 @@ def ode_solve(z0, u, t0, t1, f):
     z = z0
     dz = f(z, u, t0, t1)
     z = z + dz
-    # dt = t1 - t0
-    # K1, _, _ = f(z, u, x_shape, t0, t1)
-    # K2, _, _ = f(z + K1 / 2, u, x_shape, t0 + dt / 2, t1)
-    # K3, _, _ = f(z + K2 / 2, u, x_shape, t0 + dt / 2, t1)
-    # z = z + (K1 + 2 * K2 + 2 * K3) / 5
-
     return z
 
 class ODEF(nn.Module):
@@ -272,17 +266,10 @@ class NeuralODE(nn.Module):
                   self.func.time_embedding.Dinf - self.func.time_embedding.Dsup,
                   self.func.time_embedding.Hinf - self.func.time_embedding.Hsup]
 
-        # max_step = np.trunc(np.log([365*24, 30*24, 7*24, 24, 1])).astype(np.int64) + 2
-
-        # max_step = [0, 3, 3, 3, 3]
         max_step = self.max_step
         if max_step == 'random':
             tmp_step = np.random.randint(2,7)
-            max_step = [0]+[tmp_step for _ in range(4)]  # 重复4
-        # print(max_step)
-        # for i in range(1, 5):
-        #     max_step[i] = np.random.randint(2, 7)
-
+            max_step = [0]+[tmp_step for _ in range(4)]  # sample steps scheduler
         def linspace(start, end, i):
             if start > end:
                 return torch.linspace(start, end + period[i].item(), max_step[i]).unsqueeze(0) % period[i].item()

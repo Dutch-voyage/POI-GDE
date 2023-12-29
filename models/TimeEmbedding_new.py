@@ -8,10 +8,6 @@ class TimeEmbedding(nn.Module):
     def __init__(self, Msup, Minf, Wsup, Winf, Dsup, Dinf, Hsup, Hinf, embed_dim, device):
         super(TimeEmbedding, self).__init__()
         self.device = device
-        # self.MEmbeds = nn.Embedding(2, embedding_dim=embed_dim)
-        # self.WEmbeds = nn.Embedding(2, embedding_dim=embed_dim)
-        # self.DEmbeds = nn.Embedding(2, embedding_dim=embed_dim)
-        # self.HEmbeds = nn.Embedding(2, embedding_dim=embed_dim)
         self.Embeds = nn.Embedding(2, embedding_dim=embed_dim)
         self.Msup = torch.FloatTensor([Msup]).to(self.device)
         self.Minf = torch.FloatTensor([Minf]).to(self.device)
@@ -27,11 +23,6 @@ class TimeEmbedding(nn.Module):
             nn.GELU(),
         )
         nn.init.kaiming_normal_(self.Embeds.weight)
-        # nn.init.kaiming_normal_(self.MEmbeds.weight)
-        # nn.init.kaiming_normal_(self.WEmbeds.weight)
-        # nn.init.kaiming_normal_(self.DEmbeds.weight)
-        # nn.init.kaiming_normal_(self.HEmbeds.weight)
-
 
     def forward(self, timestamp):
         *shape, _ = timestamp.size()

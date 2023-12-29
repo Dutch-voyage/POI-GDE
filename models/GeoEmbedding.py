@@ -7,8 +7,6 @@ class GeoEmbedding(nn.Module):
         super(GeoEmbedding, self).__init__()
         self.device = device
         self.Embeds = nn.Embedding(2, embedding_dim=embed_dim)
-        # self.LatEmbeds = nn.Embedding(2, embedding_dim=embed_dim)
-        # self.LonEmbeds = nn.Embedding(2, embedding_dim=embed_dim)
         self.Latsup = torch.FloatTensor([Latsup]).to(self.device)
         self.Latinf = torch.FloatTensor([Latinf]).to(self.device)
         self.Lonsup = torch.FloatTensor([Lonsup]).to(self.device)
@@ -19,8 +17,6 @@ class GeoEmbedding(nn.Module):
         )
 
         nn.init.kaiming_normal_(self.Embeds.weight)
-        # nn.init.kaiming_normal_(self.LatEmbeds.weight)
-        # nn.init.kaiming_normal_(self.LonEmbeds.weight)
 
     def forward(self, loc):
         lat = loc[:, 0]

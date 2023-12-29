@@ -40,13 +40,6 @@ if __name__ == "__main__":
     elif dataSet == "TKY":
         source_pth = 'data/TKY_209012_last_100_delUserAndPOILess_10.txt'
         dist_pth = 'data/ode_tky/'
-    # source_pth = '../../../root/autodl-tmp/foursquares/TKY_209012_last_100_delUserAndPOILess_10.txt'
-    # source_pth = '../../../root/autodl-tmp/foursquares/SG_189807_last_100_delUserAndPOILess_10.txt'
-
-    # dist_pth = '../data/case_study/nyc'
-
-    # dist_pth = '../data/ode_tky/'
-    # dist_pth = '../data/ode_sg/'
 
     col_names = ['uid', 'poi', 'cat_id', 'category', 'lat', 'lon', 'offset', 'time', 'unixTime', 'dayOff', 'cid']
     # 只取前4行 ['uid', 'poi', 'lat', 'lon']
@@ -133,19 +126,6 @@ if __name__ == "__main__":
                                         pos_list[i], category_list[i], timestamps[i], 1))
 
             if i >= 0.8 * (len(pos_list) - window_size - 1) + window_size:
-                '''
-                print("user")
-                print(uid)
-                print("input")
-                print(pos_list[i - window_size: i])
-                print(category_names[i - window_size: i])
-                print(timestamps[i - window_size: i])
-                print("prediction")
-                print(pos_list[i: -1])
-                print(category_names[i: -1])
-                print(timestamps[i: -1])
-                print("\n")
-                '''
                 test_val_set_i.append((uid, pos_list[i - window_size: i], pos_list[i - window_size + 1: i + 1],
                                        category_list[i - window_size: i], category_list[i - window_size + 1: i + 1],
                                        timestamps[i - window_size: i], timestamps[i - window_size + 1: i + 1],
@@ -155,9 +135,9 @@ if __name__ == "__main__":
         test_val_set.extend(test_val_set_i)
 
     random.shuffle(test_val_set)
-    # test_set = test_val_set[:int(len(test_val_set) * 0.5)]
-    # val_set = test_val_set[int(len(test_val_set) * 0.5):]
-    test_set = test_val_set
+    test_set = test_val_set[:int(len(test_val_set) * 0.5)]
+    val_set = test_val_set[int(len(test_val_set) * 0.5):]
+    # test_set = test_val_set
 
     batch_size = 1024
     # shuffle
@@ -166,19 +146,18 @@ if __name__ == "__main__":
     subjoin_num = batch_size - len(train_set) % batch_size
     subjoin_index = random.choices(range(len(train_set)), k=subjoin_num)
     train_set.extend([train_set[i] for i in subjoin_index])
-    '''
+
     subjoin_num = batch_size - len(val_set) % batch_size
     subjoin_index = random.choices(range(len(val_set)), k=subjoin_num)
     val_set.extend([val_set[i] for i in subjoin_index])
-    '''
+
     subjoin_num = batch_size - len(test_set) % batch_size
     subjoin_index = random.choices(range(len(test_set)), k=subjoin_num)
     test_set.extend([test_set[i] for i in subjoin_index])
 
-
-    print(len(train_set))
-    # print(len(val_set))
-    print(len(test_set))
+    print(f'size of train set is {len(train_set)}')
+    print(f'size of val set is {len(val_set)}')
+    print(f'size of test set is {len(test_set)}')
 
     print(len(loc_dict))
 
@@ -211,8 +190,8 @@ if __name__ == "__main__":
         pkl.dump(train_set, f, pkl.HIGHEST_PROTOCOL)
     with open(dist_pth + f'raw/test.pkl', 'wb') as f:
         pkl.dump(test_set, f, pkl.HIGHEST_PROTOCOL)
-    # with open(dist_pth + f'raw/val.pkl', 'wb') as f:c
-    #     pkl.dump(val_set, f, pkl.HIGHEST_PROTOCOL)
+    with open(dist_pth + f'raw/val.pkl', 'wb') as f:
+        pkl.dump(val_set, f, pkl.HIGHEST_PROTOCOL)
 
 
     print('CTR data dumped\n')
