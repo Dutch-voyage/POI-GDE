@@ -5,7 +5,7 @@ import numpy as np
 from torch.nn.utils.parametrizations import orthogonal
 from models.Gelu import Gelu
 from models.TimeEmbedding import TimeEmbedding
-from models.Differentiate_new import Differentiate
+from models.Differentiate import Differentiate
 import math
 
 
