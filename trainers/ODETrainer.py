@@ -75,8 +75,8 @@ class ODETrainer:
 
         self.train_set = MultiSessionsGraph(device=self.device, window_size=self.graph_size, root=f'data/{self.data}',
                                             phrase='train')
-        # self.val_set = MultiSessionsGraph(device=self.device, root=f'processed_data/{self.data}',
-        #                                   phrase='val')
+        self.val_set = MultiSessionsGraph(device=self.device, root=f'processed_data/{self.data}',
+                                          phrase='val')
         self.test_set = MultiSessionsGraph(device=self.device, window_size=self.graph_size, root=f'data/{self.data}',
                                            phrase='test')
 
