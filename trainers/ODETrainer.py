@@ -15,7 +15,6 @@ from models.EmbeddingLayer import EmbeddingLayer
 from models.MultiFuser import MultiFuser
 from models.GeoEmbedding import GeoEmbedding
 from models.TimeEmbedding import TimeEmbedding
-from models.Predictor import Predictor
 
 from models.ODE import NeuralODE, GraphODEF
 from models.Differentiate import Differentiate
