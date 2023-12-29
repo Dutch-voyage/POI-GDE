@@ -25,17 +25,10 @@ class AttnBlock(nn.Module):
 
     def forward(self, x):
         B, C, E = x.shape  # [B, C, E]
-        # h = self.batch_norm(x)
-        h = x
         # [B, C, E]
-        q = self.proj_q(h)
-        k = self.proj_k(h)
-        v = self.proj_v(h)
-
-        # q = self.dropout(q)
-        # k = self.dropout(k)
-        # v = self.dropout(v)
-
+        q = self.proj_q(x)
+        k = self.proj_k(x)
+        v = self.proj_v(x)
         q = q.permute(0, 2, 1)  # [B, E, C]
         # k [B, C, E]
         w = torch.bmm(q, k) * (int(C) ** (-0.5))
