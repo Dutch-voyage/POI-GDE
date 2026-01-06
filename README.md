@@ -2,7 +2,7 @@
 
 This is the pytorch implementation for paper: 
 
-**Siamese Learning based on Graph Differential Equation for Next-POI Recommendation**.
+[**Siamese Learning based on Graph Differential Equation for Next-POI Recommendation**](https://dl.acm.org/doi/10.1016/j.asoc.2023.111086).
 
 Please cite our paper if you use the code.
 
@@ -56,6 +56,7 @@ Run the model with the following command.
 ~~~
 python ode_main.py hydra.job.chdir=False
 ~~~
+
 
 
 
